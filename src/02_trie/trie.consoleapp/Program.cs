@@ -5,10 +5,12 @@ class Program
     static void Main(string[] args)
     {
         Trie trie = new();
-
         trie.Add("ali");
+        trie.Add("aliye");
         trie.Add("alp");
-
+        trie.Add("alperen");
+        trie.Print();
+        var c = trie.Contains("ali");
     }
 }
 
@@ -16,17 +18,17 @@ class Program
 class Trie
 {
     public bool IsEndOfWord { get; set; }
-    public Dictionary<char, Trie> Children { get; set; } = new();
+    public Dictionary<char, Trie> Child { get; set; } = new();
 
     public void Add(string word)
     {
         Trie current = this;
         foreach (var c in word)
         {
-            if (!current.Children.TryGetValue(c, out var child))
+            if (!current.Child.TryGetValue(c, out var child))
             {
                 child = new Trie();
-                current.Children.Add(c, child);
+                current.Child.Add(c, child);
             }
 
             current = child;
@@ -41,7 +43,7 @@ class Trie
 
         foreach (var c in word)
         {
-            if (!current.Children.TryGetValue(c, out current))
+            if (!current.Child.TryGetValue(c, out current))
             {
                 return false;
             }
@@ -50,28 +52,21 @@ class Trie
         return current.IsEndOfWord;
     }
 
-    public void Print(int space = 0) => Print(this, space);
+    public void Print() => Print(this);
 
-    public void Print(Trie trie, int space = 0)
+    public void Print(Trie trie)
     {
         trie ??= this;
 
-        static void PrintSingleNode(char word, int space = 0, bool isEndOfWord = false)
+        foreach (var entry in trie.Child)
         {
-            if (space > 0)
-                Console.Write(new string(' ', space));
+            PrintSingleNode(entry.Key, entry.Value.IsEndOfWord);
+            Print(entry.Value);
+        }
 
-            Console.ForegroundColor = space == 0 ? ConsoleColor.Red : ConsoleColor.White;
-
+        static void PrintSingleNode(char word, bool isEndOfWord = false)
+        {
             Console.WriteLine($"-> {word}{(isEndOfWord ? "(*)" : "")}");
         }
-
-        foreach (var entry in trie.Children)
-        {
-            PrintSingleNode(entry.Key, space, entry.Value.IsEndOfWord);
-            Print(entry.Value, space + 3);
-        }
     }
-
-
 }
